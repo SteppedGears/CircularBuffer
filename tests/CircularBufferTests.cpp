@@ -177,12 +177,7 @@ TEST(CircularBufferBasic, canOverwriteMoreThanOnce)
 
 TEST(CircularBufferBasic, canReadAfterOverwrite)
 {
-    uint8_t expectedBuffer[realBufferSize];
-    expectedBuffer[realBufferSize - 1] = 0xAA;
     int i;
-    for( i = 0; i < (realBufferSize + bufferSize); i++){
-        expectedBuffer[i % bufferSize] = '0' + i;
-    }
 
     for(i = 0; i < (realBufferSize + bufferSize); i++){
         CircularBufferWriteByte(&circularBuffer, '0' + i);
