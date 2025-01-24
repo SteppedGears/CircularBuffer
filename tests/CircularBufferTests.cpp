@@ -57,6 +57,7 @@ TEST_GROUP(CircularBufferBasic)
 
     void teardown()
     {
+        CHECK_EQUAL(0xAA, buffer[realBufferSize - 1]);
     }
 };
 
@@ -192,4 +193,62 @@ TEST(CircularBufferBasic, canReadAfterOverwrite)
     BYTES_EQUAL(0x42, CircularBufferReadByte(&circularBuffer));
     BYTES_EQUAL(0x43, CircularBufferReadByte(&circularBuffer));
     BYTES_EQUAL(0x44, CircularBufferReadByte(&circularBuffer));
+}
+
+TEST(CircularBufferBasic, canSetMarkerAndRewindAndReread)
+{
+    CircularBufferWriteByte(&circularBuffer, 'A');
+    CircularBufferWriteByte(&circularBuffer, 'B');
+    CircularBufferWriteByte(&circularBuffer, 'C');
+    CircularBufferSetMarker(&circularBuffer);
+    BYTES_EQUAL('A', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('B', CircularBufferReadByte(&circularBuffer));
+    CircularBufferRewind(&circularBuffer);
+    BYTES_EQUAL('A', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('B', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('C', CircularBufferReadByte(&circularBuffer));
+}
+
+TEST(CircularBufferBasic, markerIsMovedWhenReachedByWrite)
+{
+    CircularBufferWriteByte(&circularBuffer, 'A');
+    CircularBufferWriteByte(&circularBuffer, 'B');
+    CircularBufferWriteByte(&circularBuffer, 'C');
+
+    BYTES_EQUAL('A', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('B', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('C', CircularBufferReadByte(&circularBuffer));
+    CircularBufferSetMarker(&circularBuffer);
+
+    CircularBufferWriteByte(&circularBuffer, 'D');
+    CircularBufferWriteByte(&circularBuffer, 'E');
+    CircularBufferWriteByte(&circularBuffer, 'F');
+    CircularBufferWriteByte(&circularBuffer, 'G');
+    CircularBufferWriteByte(&circularBuffer, 'H');
+    CircularBufferWriteByte(&circularBuffer, 'I');
+    CircularBufferWriteByte(&circularBuffer, 'J');
+
+    BYTES_EQUAL('D', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('E', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('F', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('G', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('H', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('I', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('J', CircularBufferReadByte(&circularBuffer));
+
+
+
+    CircularBufferWriteByte(&circularBuffer, 'K');
+    CircularBufferWriteByte(&circularBuffer, 'L');
+    CircularBufferWriteByte(&circularBuffer, 'M');
+    CircularBufferWriteByte(&circularBuffer, 'N');
+    CircularBufferWriteByte(&circularBuffer, 'O');
+    CircularBufferWriteByte(&circularBuffer, 'P');
+    CircularBufferWriteByte(&circularBuffer, 'Q');
+    CircularBufferWriteByte(&circularBuffer, 'R');
+
+    BYTES_EQUAL('K', CircularBufferReadByte(&circularBuffer));
+
+    CircularBufferRewind(&circularBuffer);
+    BYTES_EQUAL('J', CircularBufferReadByte(&circularBuffer));
 }

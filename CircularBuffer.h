@@ -4,6 +4,7 @@
 */
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef struct circularBuffer_s{
     uint8_t *buf;
@@ -19,3 +20,5 @@ size_t CircularBufferFreeSpace(circularBuffer_t *pBuffer);
 int CircularBufferIsEmpty(circularBuffer_t *pBuffer);
 int CircularBufferWriteByte(circularBuffer_t *pBuffer, uint8_t byte);
 uint8_t CircularBufferReadByte(circularBuffer_t *pBuffer);
+void CircularBufferSetMarker(circularBuffer_t *pBuffer);
+void CircularBufferRewind(circularBuffer_t *pBuffer);

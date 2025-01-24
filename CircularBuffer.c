@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "CircularBuffer.h"
 
 static void incrementRead(circularBuffer_t *pBuffer);
@@ -28,6 +27,12 @@ int CircularBufferWriteByte(circularBuffer_t *pBuffer, uint8_t byte){
     if(pBuffer->pWrite > pBuffer->pEnd){
         pBuffer->pWrite = pBuffer->pStart;
     }
+    if(pBuffer->pWrite == pBuffer->pMark){
+        pBuffer->pMark++;
+        if(pBuffer->pMark > pBuffer->pEnd){
+            pBuffer->pMark = pBuffer->pStart;
+        }
+    }
     if(pBuffer->pWrite == pBuffer->pRead){
         incrementRead(pBuffer);
     }
@@ -38,6 +43,14 @@ uint8_t CircularBufferReadByte(circularBuffer_t *pBuffer){
     byte = *(pBuffer->pRead);
     incrementRead(pBuffer);
     return byte;
+}
+
+void CircularBufferSetMarker(circularBuffer_t *pBuffer) {
+    pBuffer->pMark = pBuffer->pRead;
+}
+
+void CircularBufferRewind(circularBuffer_t *pBuffer) {
+    pBuffer->pRead = pBuffer->pMark;
 }
 
 static void incrementRead(circularBuffer_t *pBuffer){
