@@ -1,4 +1,6 @@
 #include "CppUTest/TestHarness.h"
+#include "CppUTest/UtestMacros.h"
+#include <cstdint>
 
 
 
@@ -251,4 +253,46 @@ TEST(CircularBufferBasic, markerIsMovedWhenReachedByWrite)
 
     CircularBufferRewind(&circularBuffer);
     BYTES_EQUAL('J', CircularBufferReadByte(&circularBuffer));
+}
+
+TEST(CircularBufferBasic, canWriteMultipleBytes)
+{
+    uint8_t writeBuffer[5] = {'A', 'B', 'C', 'D', 'E'};
+
+    CircularBufferWriteNBytes(&circularBuffer, writeBuffer, 5);
+    BYTES_EQUAL('A', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('B', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('C', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('D', CircularBufferReadByte(&circularBuffer));
+    BYTES_EQUAL('E', CircularBufferReadByte(&circularBuffer));
+
+}
+
+TEST(CircularBufferBasic, singleByteWriteFunctionReportsOverwriting){
+    uint8_t writeBuffer[10] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[0]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[1]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[2]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[3]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[4]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[5]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[6]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[7]));
+    CHECK_EQUAL(0, CircularBufferWriteByte(&circularBuffer, writeBuffer[8]));
+    CHECK_EQUAL(-1, CircularBufferWriteByte(&circularBuffer, writeBuffer[9]));
+}
+
+TEST(CircularBufferBasic, multipleByteWriteFunctionReportsOverwriting){
+    uint8_t writeBuffer[10] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+    CHECK_EQUAL(-1,  CircularBufferWriteNBytes(&circularBuffer, writeBuffer, 10));
+}
+
+TEST(CircularBufferBasic, multipleByteWriteFunctionReportsOverwritingMoreThanOnceTwo){
+    uint8_t writeBuffer[11] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'};
+    CHECK_EQUAL(-2,  CircularBufferWriteNBytes(&circularBuffer, writeBuffer, 11));
+}
+
+TEST(CircularBufferBasic, multipleByteWriteFunctionReportsOverwritingMoreThanOnceThree){
+    uint8_t writeBuffer[12] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
+    CHECK_EQUAL(-3,  CircularBufferWriteNBytes(&circularBuffer, writeBuffer, 12));
 }

@@ -22,6 +22,7 @@ int CircularBufferIsEmpty(circularBuffer_t *pBuffer){
 }
 
 int CircularBufferWriteByte(circularBuffer_t *pBuffer, uint8_t byte){
+    int retVal = 0;
     *(pBuffer->pWrite) = byte;
     pBuffer->pWrite++;
     if(pBuffer->pWrite > pBuffer->pEnd){
@@ -35,7 +36,17 @@ int CircularBufferWriteByte(circularBuffer_t *pBuffer, uint8_t byte){
     }
     if(pBuffer->pWrite == pBuffer->pRead){
         incrementRead(pBuffer);
+        retVal = -1;
     }
+    return retVal;
+}
+
+int CircularBufferWriteNBytes(circularBuffer_t *pBuffer, uint8_t *pBytes, size_t nBytes){
+    int retVal = 0;
+    for(int i = 0; i < nBytes; i++){
+        retVal += CircularBufferWriteByte(pBuffer, pBytes[i]);
+    }
+    return retVal;
 }
 
 uint8_t CircularBufferReadByte(circularBuffer_t *pBuffer){

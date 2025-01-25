@@ -19,6 +19,7 @@ void CircularBufferInit(circularBuffer_t *pCircularBuffer, uint8_t *pBuf, size_t
 size_t CircularBufferFreeSpace(circularBuffer_t *pBuffer);
 int CircularBufferIsEmpty(circularBuffer_t *pBuffer);
 int CircularBufferWriteByte(circularBuffer_t *pBuffer, uint8_t byte);
+int CircularBufferWriteNBytes(circularBuffer_t *pBuffer, uint8_t *pBytes, size_t nBytes);
 uint8_t CircularBufferReadByte(circularBuffer_t *pBuffer);
 void CircularBufferSetMarker(circularBuffer_t *pBuffer);
 void CircularBufferRewind(circularBuffer_t *pBuffer);
