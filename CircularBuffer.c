@@ -1,5 +1,7 @@
 #include "CircularBuffer.h"
 
+static void incrementRead(circularBuffer_t *pBuffer);
+
 /********************
 * Name: CircularBufferInit
 * Description: Initializes the circular buffer with the provided buffer and size.
