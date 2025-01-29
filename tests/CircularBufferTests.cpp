@@ -296,3 +296,37 @@ TEST(CircularBufferBasic, multipleByteWriteFunctionReportsOverwritingMoreThanOnc
     uint8_t writeBuffer[12] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'};
     CHECK_EQUAL(-3,  CircularBufferWriteNBytes(&circularBuffer, writeBuffer, 12));
 }
+
+TEST(CircularBufferBasic, emptyBufferReturnsSizeMinusOneFreeSpace){
+    CHECK_EQUAL(bufferSize - 1, CircularBufferFreeSpace(&circularBuffer));
+}
+
+TEST(CircularBufferBasic, fullBufferReturnsZeroFreeSpace){
+    for(int i = 0; i < bufferSize; i++){
+        CircularBufferWriteByte(&circularBuffer, '0' + i);
+    }
+    CHECK_EQUAL(0, CircularBufferFreeSpace(&circularBuffer));
+}
+
+TEST(CircularBufferBasic, bufferWithOneByteWrittenReturnsSizeMinusTwoFreeSpace){
+    CircularBufferWriteByte(&circularBuffer, 'A');
+    CHECK_EQUAL(bufferSize - 2, CircularBufferFreeSpace(&circularBuffer));
+}
+
+TEST(CircularBufferBasic, bufferWithWrappingReturnsCorrectFreeSpace){
+    //fill the buffer for 1/2
+    for(int i = 0; i < bufferSize / 2; i++){
+        CircularBufferWriteByte(&circularBuffer, '0' + i);
+    }
+    //read everything
+    while(!CircularBufferIsEmpty(&circularBuffer)){
+        CircularBufferReadByte(&circularBuffer);
+    }
+    //now both pointers are in the middle of the buffer
+    //write 1/2 of the buffer plus some to wrap around
+    for(int i = 0; i < bufferSize / 2 + 2; i++){
+        CircularBufferWriteByte(&circularBuffer, 'a' + i);
+    }
+    //now the buffer should have bufferSize - 1 - bufferSize/2 - 2 bytes free
+    CHECK_EQUAL(bufferSize - 1 - bufferSize/2 - 2, CircularBufferFreeSpace(&circularBuffer));
+}

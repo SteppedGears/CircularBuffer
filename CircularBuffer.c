@@ -29,7 +29,16 @@ void CircularBufferInit(circularBuffer_t *pCircularBuffer, uint8_t *pBuf, size_t
 * Return: the amount of free space in the buffer
 **********************/
 size_t CircularBufferFreeSpace(circularBuffer_t *pBuffer){
-    return 99;
+    size_t total = pBuffer->pEnd - pBuffer->pStart;
+    if(pBuffer->pWrite == pBuffer->pRead){
+        return total;
+    }
+    
+    if(pBuffer->pWrite > pBuffer->pRead){
+        return total - (pBuffer->pWrite - pBuffer->pRead);
+    }
+    
+    return pBuffer->pRead - pBuffer->pWrite - 1;
 }
 
 /********************
