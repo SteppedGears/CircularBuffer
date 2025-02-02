@@ -1,4 +1,4 @@
-#include "CppUTest/TestHarness.h"
+#include "CppUTest/TestHarness.h"   // IWYU pragma: keep
 #include "CppUTest/UtestMacros.h"
 #include <cstdint>
 

@@ -13,3 +13,13 @@ target_link_directories(circularBufferTests PUBLIC
 target_include_directories(circularBufferTests PUBLIC
             "${PROJECT_SOURCE_DIR}/../cpputest/include"
             ../)
+
+add_executable(circularBufferMultiThreadTests
+                    MultiThreadTests.c)
+
+target_link_libraries(circularBufferMultiThreadTests CircularBuffer)
+target_link_directories(circularBufferMultiThreadTests PUBLIC 
+                                "${PROJECT_BINARY_DIR}/..")
+
+target_include_directories(circularBufferMultiThreadTests PUBLIC
+            ../)
