@@ -12,5 +12,6 @@ add_subdirectory(cpputest)
 add_subdirectory(tests)
 
 add_test(NAME allTests COMMAND circularBufferTests)
+add_test(NAME multiThreadTests COMMAND circularBufferMultiThreadTests)
 
 
