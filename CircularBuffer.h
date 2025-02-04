@@ -6,13 +6,20 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef __linux__
+#include <pthread.h>
+#endif
+
 typedef struct circularBuffer_s{
     uint8_t *buf;
     uint8_t *pStart;
     uint8_t *pEnd;
     uint8_t *pWrite;
     uint8_t *pRead;
-    uint8_t *pMark; 
+    uint8_t *pMark;
+    #ifdef __linux__
+    pthread_mutex_t mutex;
+    #endif
 }circularBuffer_t;
 
 void CircularBufferInit(circularBuffer_t *pCircularBuffer, uint8_t *pBuf, size_t bufSize);

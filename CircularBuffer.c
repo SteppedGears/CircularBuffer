@@ -1,4 +1,7 @@
 #include "CircularBuffer.h"
+#ifdef __linux__
+#include <pthread.h>
+#endif
 
 static void incrementRead(circularBuffer_t *pBuffer);
 
@@ -18,6 +21,10 @@ void CircularBufferInit(circularBuffer_t *pCircularBuffer, uint8_t *pBuf, size_t
     pCircularBuffer->pWrite = pCircularBuffer->pStart;
     pCircularBuffer->pRead = pCircularBuffer->pStart;
     pCircularBuffer->pMark = pCircularBuffer->pStart;
+    
+    #ifdef __linux__
+    pthread_mutex_init(&pCircularBuffer->mutex, NULL);
+    #endif
 }
 
 /********************
@@ -29,16 +36,23 @@ void CircularBufferInit(circularBuffer_t *pCircularBuffer, uint8_t *pBuf, size_t
 * Return: the amount of free space in the buffer
 **********************/
 size_t CircularBufferFreeSpace(circularBuffer_t *pBuffer){
-    size_t total = pBuffer->pEnd - pBuffer->pStart;
+    size_t total, free;
+    #ifdef __linux__
+    pthread_mutex_lock(&pBuffer->mutex);
+    #endif
+    total = pBuffer->pEnd - pBuffer->pStart;
     if(pBuffer->pWrite == pBuffer->pRead){
-        return total;
+        free = total;
+    }else if(pBuffer->pWrite > pBuffer->pRead){
+        free = total - (pBuffer->pWrite - pBuffer->pRead);
+    }else{
+        free = pBuffer->pRead - pBuffer->pWrite - 1;
     }
+    #ifdef __linux__
+    pthread_mutex_unlock(&pBuffer->mutex);
+    #endif
     
-    if(pBuffer->pWrite > pBuffer->pRead){
-        return total - (pBuffer->pWrite - pBuffer->pRead);
-    }
-    
-    return pBuffer->pRead - pBuffer->pWrite - 1;
+    return free;
 }
 
 /********************
@@ -50,10 +64,15 @@ size_t CircularBufferFreeSpace(circularBuffer_t *pBuffer){
 * Return: 1 if the buffer is empty, 0 otherwise
 **********************/
 int CircularBufferIsEmpty(circularBuffer_t *pBuffer){
-    if(pBuffer->pRead == pBuffer->pWrite){
-        return 1;
-    }
-    return 0;
+    int isEmpty;
+    #ifdef __linux__
+    pthread_mutex_lock(&pBuffer->mutex);
+    #endif
+    isEmpty = (pBuffer->pRead == pBuffer->pWrite);
+    #ifdef __linux__
+    pthread_mutex_unlock(&pBuffer->mutex);
+    #endif
+    return isEmpty;
 }
 
 /********************
@@ -70,6 +89,9 @@ int CircularBufferIsEmpty(circularBuffer_t *pBuffer){
 **********************/
 int CircularBufferWriteByte(circularBuffer_t *pBuffer, uint8_t byte){
     int retVal = 0;
+    #ifdef __linux__
+    pthread_mutex_lock(&pBuffer->mutex);
+    #endif
     *(pBuffer->pWrite) = byte;
     pBuffer->pWrite++;
     if(pBuffer->pWrite > pBuffer->pEnd){
@@ -85,6 +107,9 @@ int CircularBufferWriteByte(circularBuffer_t *pBuffer, uint8_t byte){
         incrementRead(pBuffer);
         retVal = -1;
     }
+    #ifdef __linux__
+    pthread_mutex_unlock(&pBuffer->mutex);
+    #endif
     return retVal;
 }
 
@@ -118,8 +143,14 @@ int CircularBufferWriteNBytes(circularBuffer_t *pBuffer, uint8_t *pBytes, size_t
 **********************/
 uint8_t CircularBufferReadByte(circularBuffer_t *pBuffer){
     uint8_t byte;
+    #ifdef __linux__
+    pthread_mutex_lock(&pBuffer->mutex);
+    #endif
     byte = *(pBuffer->pRead);
     incrementRead(pBuffer);
+    #ifdef __linux__
+    pthread_mutex_unlock(&pBuffer->mutex);
+    #endif
     return byte;
 }
 
