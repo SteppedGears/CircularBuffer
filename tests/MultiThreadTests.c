@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include "CircularBuffer.h"
 
@@ -44,7 +45,8 @@ static void *writingThread(void *arg){
     for(i = 0; i < NUM_BYTES; i++){
         byteToWrite = i%256;
         CircularBufferWriteByte(pBuffer, byteToWrite);
-        // printf("write byte: 0x%02X\n", byteToWrite);
+        //printf("write byte: 0x%02X\n", byteToWrite);
+        usleep(1000);
     }
     printf("last written byte: %02X\n", byteToWrite);
     pthread_mutex_lock(&mutex);
@@ -62,14 +64,14 @@ static void *readingThread(void *arg){
         pthread_mutex_lock(&mutex);
         stillWritingTmp = stillWriting;
         pthread_mutex_unlock(&mutex);
-
+        
         if(!CircularBufferIsEmpty(pBuffer)){
             byte = CircularBufferReadByte(pBuffer);
             //printf("Read byte: 0x%02X\n", byte);
         }else if (!stillWritingTmp){
             break;
         }
-
+        usleep(1000);
     }
     printf("last read byte: %02X\n", byte);
     return 0;
