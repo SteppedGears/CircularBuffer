@@ -163,7 +163,13 @@ uint8_t CircularBufferReadByte(circularBuffer_t *pBuffer){
 * Return: <>
 **********************/
 void CircularBufferSetMarker(circularBuffer_t *pBuffer) {
+    #ifdef __linux__
+    pthread_mutex_lock(&pBuffer->mutex);
+    #endif
     pBuffer->pMark = pBuffer->pRead;
+    #ifdef __linux__
+    pthread_mutex_unlock(&pBuffer->mutex);
+    #endif
 }
 
 /********************
@@ -175,7 +181,13 @@ void CircularBufferSetMarker(circularBuffer_t *pBuffer) {
 * Return: <>
 **********************/
 void CircularBufferRewind(circularBuffer_t *pBuffer) {
+    #ifdef __linux__
+    pthread_mutex_lock(&pBuffer->mutex);
+    #endif
     pBuffer->pRead = pBuffer->pMark;
+    #ifdef __linux__
+    pthread_mutex_unlock(&pBuffer->mutex);
+    #endif
 }
 
 /********************
